@@ -5,10 +5,7 @@ from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 from fastapi.responses import JSONResponse
 from app.api import employees
-from app.db.session import engine, init_db
-import asyncio
 import logging
-import os
 
 # Configure logging
 logger = logging.getLogger(__name__)

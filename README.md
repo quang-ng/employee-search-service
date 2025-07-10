@@ -82,10 +82,46 @@ curl -u admin_techcorp:testpass "http://localhost:8000/employees" | jq '.results
 }
 ```
 
+### Invalid credentials example 
+
+```bash
+curl -u fakeuser:testpass "http://localhost:8000/employees" | jq 
+```
+Response:
+```json
+{
+  "detail": "Invalid credentials"
+}
+```
+
+### Rate Limit Error Example
+
+If you make too many requests in a short period, the API will return a rate limit error (HTTP 429). You can simulate this by sending multiple requests quickly:
+
+```bash
+for i in {1..20}; do
+  curl -u admin_techcorp:testpass "http://localhost:8000/employees"
+done
+```
+
+If the rate limit is exceeded, you will receive a response like:
+
+```json
+{
+  "detail":"Rate limit exceeded. Please try again later"
+}
+```
+
+You can also use `jq` to pretty-print the output and spot the error more easily:
+
+```bash
+for i in {1..20}; do
+  curl -u admin_techcorp:testpass "http://localhost:8000/employees" | jq
+done
+```
+
 **Note:**  
-- The API runs on `http://localhost:8000` by default.
 - You must use a valid username/password (see the `init.sql` for seeded users).
-- The fields in `results` may vary depending on your organization’s configuration.
 
 ---
 

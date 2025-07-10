@@ -15,7 +15,7 @@ async def get_current_user(credentials: HTTPBasicCredentials = Depends(security)
     if not user or not bcrypt.checkpw(credentials.password.encode(), user.hashed_password.encode()):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Authentication required",
+            detail="Invalid credentials",
             headers={"WWW-Authenticate": "Basic"},
         )
     return user 
