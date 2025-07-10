@@ -1,12 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy import and_
+from sqlalchemy import and_, func
 from app.db.models import Employee, User
 from app.db.session import get_db
 from app.middleware.auth import get_current_user
 from app.config.org_cache import get_org_config
 from app.middleware.rate_limit import rate_limiter
+from app.config.employee_count_cache import get_employee_count_from_cache, set_employee_count_cache
 
 router = APIRouter()
 
@@ -46,6 +47,13 @@ async def list_employees(
     # Build query with ordering
     stmt = select(Employee).where(and_(*filters))
     
+    # Try to get count from cache
+    total_count = await get_employee_count_from_cache(org_id, status, location, company, department, position)
+    if total_count is None:
+        # Count total matching employees (without pagination)
+        count_stmt = select(func.count()).select_from(Employee).where(and_(*filters))
+        total_count = (await db.execute(count_stmt)).scalar()
+        await set_employee_count_cache(org_id, status, location, company, department, position, total_count, ttl=60)
     
     # Add pagination
     stmt = stmt.offset(offset).limit(limit)
@@ -62,4 +70,4 @@ async def list_employees(
         }
         result.append(emp_dict)
     
-    return {"limit": limit, "offset": offset, "count": len(result), "results": result}
+    return {"limit": limit, "offset": offset, "count": total_count, "results": result}
