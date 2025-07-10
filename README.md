@@ -173,3 +173,23 @@ The tests cover the following scenarios:
 
 - **TestListEmployees**: Unit tests for the `list_employees` function
 - **TestEmployeeAPIEndpoints**: Integration tests for HTTP endpoints 
+
+---
+
+## AI Tools & Best Practices
+
+### What AI tools do our developers use?
+- **Cursor with GPT-4.1 model of OpenAI**: For code completion, suggestions, and boilerplate generation.
+
+### How do these tools assist?
+- **Coding**: Suggest alternative implementations, and help generate repetitive code structures, speeding up development.
+- **Debugging**: Developers use AI chat assistants to explain error messages, suggest fixes, and analyze stack traces.
+- **Testing**: AI can help generate test cases, review test coverage, and suggest edge cases.
+- **Documentation**: Tools like ChatGPT help me in drafting and refining documentation, README sections, and code comments.
+
+### Best Practices for AI Tool Usage
+- **Review All AI-Generated Code**: Always review, test, and understand code suggested by AI before merging.
+- **Use AI for Ideation, Not as a Source of Truth**: Treat AI suggestions as starting points, not final answers.
+- **Maintain Security & Privacy**: Never share sensitive code, credentials, or proprietary data with external AI tools.
+- **Document AI-Assisted Changes**: Note in PRs or commit messages when significant code was generated or heavily influenced by AI.
+- **Continuous Learning**: Stay updated on AI tool capabilities and limitations to maximize productivity and code quality. 
