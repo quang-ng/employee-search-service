@@ -89,6 +89,41 @@ curl -u admin_techcorp:testpass "http://localhost:8000/employees" | jq '.results
 
 ---
 
+## OpenAPI & API Documentation
+
+This service provides a fully documented OpenAPI (Swagger) schema, which you can use to explore, share, or generate client SDKs for the API.
+
+- **Swagger UI:**
+  - Interactive docs at: [http://localhost:8000/docs](http://localhost:8000/docs)
+
+  ![Alt text](./screen_images/Swagger.png "Swagger UI")
+- **ReDoc:**
+  - Alternative docs at: [http://localhost:8000/redoc](http://localhost:8000/redoc)
+
+  ![Alt text](./screen_images/ReDoc.png "Swagger UI")
+- **Raw OpenAPI JSON:**
+  - Download or share the OpenAPI schema at: [http://localhost:8000/openapi.json](http://localhost:8000/openapi.json)
+  - Example:
+    ```bash
+    curl http://localhost:8000/openapi.json | jq
+    ```
+   - Sample response:
+    ```json
+      {
+         "openapi": "3.1.0",
+         "info": {
+            "title": "FastAPI",
+            "version": "0.1.0"
+         },
+         "paths": {
+         ......
+         }
+      }
+   ```
+You can import the OpenAPI JSON into tools like Postman, Swagger Editor, or use it to generate client SDKs in various languages.
+
+---
+
 ## Testing
 
 The project includes comprehensive unit tests for the employee search API. The tests cover:
