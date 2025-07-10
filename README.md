@@ -5,6 +5,7 @@ A simple, secure, and configurable employee directory microservice for HR organi
 ## Stack
 - **Backend:** FastAPI (Python)
 - **Database:** PostgreSQL
+- **Caching:** Redis (for organization config and employee count)
 - **Containerization:** Docker
 
 ## Features
@@ -12,6 +13,17 @@ A simple, secure, and configurable employee directory microservice for HR organi
 - Secure, isolated data per organization
 - RESTful API for employee search and listing
 - Containerized for easy deployment
+
+## Caching with Redis
+
+This service uses **Redis** for caching in two main scenarios:
+
+- **Organization Configuration Cache:**
+  - Organization-specific configuration data is cached in Redis to reduce database load and improve response times for repeated config lookups.
+- **Employee Count Cache:**
+  - The total number of employees per organization is cached in Redis to speed up count queries, especially for large datasets or frequent requests.
+
+Redis caching helps ensure the service remains fast and scalable, especially under high load or with large organizations.
 
 ## Project Structure
 ```
