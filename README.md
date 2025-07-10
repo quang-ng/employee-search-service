@@ -220,7 +220,6 @@ The tests cover the following scenarios:
 ### Test Structure
 
 - **TestListEmployees**: Unit tests for the `list_employees` function
-- **TestEmployeeAPIEndpoints**: Integration tests for HTTP endpoints 
 
 ---
 
