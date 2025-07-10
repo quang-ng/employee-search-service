@@ -1,16 +1,6 @@
-import os
-import redis.asyncio as redis
+from app.config import get_redis
 
-REDIS_URL = os.getenv("REDIS_URL", "redis://localhost")
-redis_client = None
 
-async def get_redis():
-    global redis_client
-    if redis_client is None:
-        redis_client = redis.from_url(REDIS_URL, decode_responses=True)
-    return redis_client
-
-# Helper to build cache key for employee count
 def build_employee_count_cache_key(org_id, status, location, company, department, position):
     return f"employee_count:{org_id}:{status or ''}:{location or ''}:{company or ''}:{department or ''}:{position or ''}"
 
