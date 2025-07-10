@@ -1,4 +1,4 @@
-# Employee Search Service (ast-api)
+# Employee Search Service (fast-api)
 
 A simple, secure, and configurable employee directory microservice for HR organizations.
 
@@ -31,6 +31,63 @@ employee-search-service/
 └── tests/
     └── test_api_employees.py  # API unit tests
 ```
+## Demo: Using the Employees API with `curl` and `jq`
+
+You can interact with the Employee Search API using standard HTTP tools. The API uses HTTP Basic Auth. Example users (all with password `testpass`) are seeded by default, e.g. `admin_techcorp`, `hr_manager`, etc. (all users info are in `init.sql`)
+
+### List Employees (all, default pagination)
+
+```bash
+curl -u admin_techcorp:testpass "http://localhost:8000/employees" | jq
+```
+
+### Filter by Department
+
+```bash
+curl -u admin_techcorp:testpass "http://localhost:8000/employees?department=Engineering" | jq
+```
+
+### Paginate Results
+
+```bash
+curl -u admin_techcorp:testpass "http://localhost:8000/employees?limit=2&offset=2" | jq
+```
+
+### Show Only Employee Names
+
+```bash
+curl -u admin_techcorp:testpass "http://localhost:8000/employees" | jq '.results[].name'
+```
+
+### Example Response
+
+```json
+{
+  "limit": 20,
+  "offset": 0,
+  "count": 10,
+  "results": [
+    {
+      "name": "John Smith",
+      "department": "Engineering",
+      "position": "Senior Software Engineer",
+      "location": "San Francisco",
+      "contact_info": "john.smith@techcorp.com",
+      "status": "active",
+      "company": "TechCorp Inc.",
+      "org_id": 1
+    },
+    ...
+  ]
+}
+```
+
+**Note:**  
+- The API runs on `http://localhost:8000` by default.
+- You must use a valid username/password (see the `init.sql` for seeded users).
+- The fields in `results` may vary depending on your organization’s configuration.
+
+---
 
 ## Testing
 
