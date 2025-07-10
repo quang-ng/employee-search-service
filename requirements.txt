@@ -5,4 +5,5 @@ asyncpg
 psycopg2-binary
 python-dotenv 
 slowapi 
-redis 
+redis[hiredis]
+bcrypt

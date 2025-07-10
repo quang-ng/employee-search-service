@@ -1,10 +1,12 @@
 import time
+import os
 from fastapi import Request, HTTPException, Depends
 from app.middleware.auth import get_current_user, User
 import redis
 
-# Redis connection (adjust host/port/db as needed)
-redis_client = redis.Redis(host="localhost", port=6379, db=0, decode_responses=True)
+# Redis connection using environment variable
+redis_url = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+redis_client = redis.from_url(redis_url, decode_responses=True)
 
 RATE_LIMIT = 10  # requests
 RATE_PERIOD = 60  # seconds
@@ -21,12 +23,6 @@ async def rate_limiter(
     request: Request,
     current_user: User = Depends(get_current_user),
 ):
-    if not current_user:
-        raise HTTPException(
-            status_code=401,
-            detail="Invalid authentication credentials",
-            headers={"WWW-Authenticate": "Basic"},
-        )
     redis_key = f"rl:user:{current_user.id}"
     # Increment the counter
     current = redis_client.incr(redis_key)
