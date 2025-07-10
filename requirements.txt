@@ -3,7 +3,6 @@ uvicorn[standard]==0.24.0
 sqlalchemy[asyncio]==2.0.23
 asyncpg==0.29.0
 redis==5.0.1
-slowapi==0.1.9
 pydantic==2.5.0
 python-multipart==0.0.6
 python-jose[cryptography]==3.3.0
