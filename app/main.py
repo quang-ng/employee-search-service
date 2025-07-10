@@ -80,14 +80,6 @@ async def general_exception_handler(request: Request, exc: Exception):
     )
 
 
-@app.on_event("shutdown")
-async def shutdown_event():
-    """Close database connections on shutdown."""
-    logger.info("Shutting down Employee Search Service...")
-    await engine.dispose()
-    logger.info("Database connections closed")
-
-
 app.include_router(employees.router)
 
 
