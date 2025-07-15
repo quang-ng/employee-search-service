@@ -284,17 +284,24 @@ This service provides a fully documented OpenAPI (Swagger) schema, which you can
    ```
 You can import the OpenAPI JSON into tools like Postman, Swagger Editor, or use it to generate client SDKs in various languages.
 
----
-
 ## Testing
 
-The project includes comprehensive unit tests for the employee search API. The tests cover:
+The project includes comprehensive unit tests for the employee search API. The tests cover all major scenarios and edge cases to ensure reliability and correctness.
 
-- **Authentication and authorization**
-- **Employee listing with various filters**
-- **Pagination functionality**
-- **Organization configuration handling**
-- **Error cases and edge conditions**
+### Tested Cases
+
+- ✅ Successful employee listing with default parameters
+- ✅ Employee filtering by department, status, location, company, position
+- ✅ Pagination with limit and cursor (key-set pagination)
+- ✅ Organization not found error handling
+- ✅ Empty result sets
+- ✅ Limited field configuration
+- ✅ Input validation (invalid limit/offset values)
+- ✅ Unauthorized access handling
+- ✅ Rate limiting (429 error)
+- ✅ Invalid credentials
+- ✅ Invalid org_id
+- ✅ JWT authentication required for protected endpoints
 
 ### Running Tests
 
@@ -318,22 +325,11 @@ The project includes comprehensive unit tests for the employee search API. The t
    pytest tests/test_api_employees.py -v
    ```
 
-### Test Coverage
-
-The tests cover the following scenarios:
-
-- ✅ Successful employee listing with default parameters
-- ✅ Employee filtering by department, status, location, company, position
-- ✅ Pagination with limit and cursor (key-set pagination)
-- ✅ Organization not found error handling
-- ✅ Empty result sets
-- ✅ Limited field configuration
-- ✅ Input validation (invalid limit/offset values)
-- ✅ Unauthorized access handling
-
 ### Test Structure
 
 - **TestListEmployees**: Unit tests for the `list_employees` function
+- **test_rate_limit.py**: Unit tests fro the `rate_limit` function
+
 
 ---
 
