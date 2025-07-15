@@ -4,13 +4,15 @@ from sqlalchemy import text
 # from sqlalchemy.exc import OperationalError, AuthenticationFailed
 from app.db.models import Base
 import os
-import logging
 import asyncio
 from typing import Optional
 from fastapi import HTTPException
+from app.config.logging import setup_logging
+import structlog
 
-# Configure logging
-logger = logging.getLogger(__name__)
+# Configure structlog JSON logging (idempotent)
+setup_logging()
+logger = structlog.get_logger()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
@@ -48,9 +50,9 @@ async def init_db():
     try:
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
-        logger.info("Database tables initialized successfully")
+        logger.info("db_tables_initialized")
     except Exception as e:
-        logger.error(f"Failed to initialize database tables: {str(e)}")
+        logger.error("db_init_failed", error=str(e))
         raise
 
 async def get_db():
@@ -60,25 +62,25 @@ async def get_db():
     
     for attempt in range(max_retries):
         try:
-            logger.info(f"Attempting to create database session (attempt {attempt + 1}/{max_retries})")
+            logger.info("db_session_attempt", attempt=attempt + 1, max_retries=max_retries)
             async with AsyncSessionLocal() as session:
                 try:
                     yield session
                 except Exception as e:
-                    logger.error(f"Error during session usage: {str(e)}")
+                    logger.error("db_session_usage_error", error=str(e))
                     await session.rollback()
                     raise
                 finally:
                     return  # Success, exit the function
         except HTTPException as e:
-            logger.error(f"HTTPException, raise error!!, {str(e)}")
+            logger.error("db_http_exception", error=str(e))
             raise e
         except Exception as e:
-            logger.error(f"Unexpected database error (attempt {attempt + 1}/{max_retries}): {str(e)}")
+            logger.error("db_unexpected_error", attempt=attempt + 1, max_retries=max_retries, error=str(e))
             if attempt == max_retries - 1:
-                logger.error(f"Failed to create database session after {max_retries} attempts: {str(e)}")
+                logger.error("db_session_failed", error=str(e))
                 raise
             else:
-                logger.info(f"Retrying database connection in {retry_delay} seconds...")
+                logger.info("db_retrying", retry_delay=retry_delay)
                 await asyncio.sleep(retry_delay)
                 retry_delay *= 2  # Exponential backoff

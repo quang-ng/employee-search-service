@@ -14,6 +14,59 @@ A simple, secure, and configurable employee directory microservice for HR organi
 - RESTful API for employee search and listing
 - Containerized for easy deployment
 
+## Prometheus Metrics
+
+This service exposes Prometheus-compatible metrics for monitoring and observability.
+
+- **Metrics endpoint:** `GET /metrics`
+- **Available metrics:**
+  - `http_requests_total`: Total HTTP requests, labeled by method, endpoint, and status code
+  - `http_request_latency_seconds`: Request latency histogram, labeled by method and endpoint
+
+### Example: Scraping metrics
+
+You can view metrics directly in your browser or with `curl`:
+
+```bash
+curl http://localhost:8000/metrics
+```
+
+To collect metrics with Prometheus, add a scrape config like:
+
+```yaml
+scrape_configs:
+  - job_name: 'employee-search-service'
+    static_configs:
+      - targets: ['localhost:8000']
+```
+
+Metrics can be visualized in Prometheus, Grafana, or any compatible tool.
+
+### Securing the /metrics endpoint
+
+**Important:** By default, the `/metrics` endpoint is public. In production, you should restrict access to Prometheus only.
+
+**Nginx example:**
+
+```nginx
+server {
+    listen 80;
+    server_name your-domain.com;
+
+    location /metrics {
+        allow 192.168.1.100;   # Prometheus server IP
+        deny all;
+        proxy_pass http://localhost:8000/metrics;
+    }
+
+    location / {
+        proxy_pass http://localhost:8000;
+    }
+}
+```
+
+Replace `192.168.1.100` with your Prometheus server’s IP address. All other IPs will be denied access to `/metrics`.
+
 ## Caching with Redis
 
 This service uses **Redis** for caching in two main scenarios:

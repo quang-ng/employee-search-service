@@ -5,10 +5,15 @@ Test runner script for the employee search service
 import subprocess
 import sys
 import os
+from app.config.logging import setup_logging
+import structlog
+
+setup_logging()
+logger = structlog.get_logger()
 
 def run_tests():
     """Run the test suite"""
-    print("Running employee search service tests...")
+    logger.info("test_start", msg="Running employee search service tests...")
     
     # Set environment variables for testing
     env = os.environ.copy()
@@ -25,10 +30,10 @@ def run_tests():
     
     try:
         result = subprocess.run(cmd, env=env, check=True)
-        print("\n✅ All tests passed!")
+        logger.info("test_success", msg="All tests passed!")
         return 0
     except subprocess.CalledProcessError as e:
-        print(f"\n❌ Tests failed with exit code {e.returncode}")
+        logger.error("test_failed", exit_code=e.returncode)
         return e.returncode
 
 if __name__ == "__main__":
