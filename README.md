@@ -133,10 +133,15 @@ curl -H "Authorization: Bearer <JWT_TOKEN>" "http://localhost:8000/hr/1/employee
 curl -H "Authorization: Bearer <JWT_TOKEN>" "http://localhost:8000/hr/1/employees/search?department=Engineering" | jq
 ```
 
-### Paginate Results
+### Paginate Results (Key-Set/Cursor Pagination)
 
 ```bash
-curl -H "Authorization: Bearer <JWT_TOKEN>" "http://localhost:8000/hr/1/employees/search?limit=2&offset=2" | jq
+# First page
+curl -H "Authorization: Bearer <JWT_TOKEN>" "http://localhost:8000/hr/1/employees/search?limit=2" | jq
+
+# Suppose the response contains "next_cursor": 2
+# Fetch the next page using the next_cursor value
+curl -H "Authorization: Bearer <JWT_TOKEN>" "http://localhost:8000/hr/1/employees/search?limit=2&cursor=2" | jq
 ```
 
 ### Show Only Employee Names
@@ -149,11 +154,13 @@ curl -H "Authorization: Bearer <JWT_TOKEN>" "http://localhost:8000/hr/1/employee
 
 ```json
 {
-  "limit": 20,
-  "offset": 0,
+  "limit": 2,
+  "cursor": null,
+  "next_cursor": 2,
   "count": 10,
   "results": [
     {
+      "id": 1,
       "name": "John Smith",
       "department": "Engineering",
       "position": "Senior Software Engineer",
@@ -163,7 +170,17 @@ curl -H "Authorization: Bearer <JWT_TOKEN>" "http://localhost:8000/hr/1/employee
       "company": "TechCorp Inc.",
       "org_id": 1
     },
-    ...
+    {
+      "id": 2,
+      "name": "Jane Doe",
+      "department": "Marketing",
+      "position": "Marketing Manager",
+      "location": "New York",
+      "contact_info": "jane.doe@techcorp.com",
+      "status": "active",
+      "company": "TechCorp Inc.",
+      "org_id": 1
+    }
   ]
 }
 ```
@@ -300,7 +317,7 @@ The tests cover the following scenarios:
 
 - ✅ Successful employee listing with default parameters
 - ✅ Employee filtering by department, status, location, company, position
-- ✅ Pagination with limit and offset
+- ✅ Pagination with limit and cursor (key-set pagination)
 - ✅ Organization not found error handling
 - ✅ Empty result sets
 - ✅ Limited field configuration

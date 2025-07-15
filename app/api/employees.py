@@ -19,7 +19,7 @@ async def list_employees(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
     limit: int = Query(20, ge=1, le=100),
-    offset: int = Query(0, ge=0),
+    cursor: int = Query(None, description="The last seen employee id for key-set pagination"),
     status: str = Query(None),
     location: str = Query(None),
     company: str = Query(None),
@@ -46,9 +46,16 @@ async def list_employees(
         filters.append(Employee.department == department)
     if position:
         filters.append(Employee.position == position)
+    if cursor is not None:
+        filters.append(Employee.id > cursor)
     
     # Build query with ordering
-    stmt = select(Employee).where(and_(*filters))
+    stmt = (
+        select(Employee, func.count().over().label("total_count"))
+        .where(and_(*filters))
+        .order_by(Employee.id)
+        .limit(limit)
+    )
     
     # Try to get count from cache
     total_count = await get_employee_count_from_cache(org_id, status, location, company, department, position)
@@ -59,21 +66,28 @@ async def list_employees(
         await set_employee_count_cache(org_id, status, location, company, department, position, total_count, ttl=60)
     
     # Add pagination
-    stmt = stmt.offset(offset).limit(limit)
+    # stmt = stmt.offset(offset).limit(limit) # This line is removed as per the new_code
     
-    employees = (await db.execute(stmt)).scalars().all()
-    
-    # Only return fields configured for the org
-    result = []
-    for emp in employees:
-        emp_dict = {
-            field: getattr(emp, field)
-            for field in employee_fields
-            if hasattr(emp, field)
-        }
-        result.append(emp_dict)
-    
-    return {"limit": limit, "offset": offset, "count": total_count, "results": result}
+    result = await db.execute(stmt)
+    rows = result.all()
+    employees = [row[0] for row in rows]
+    total_count = rows[0][1] if rows else 0
+
+    # Only return fields configured for the org, but always include 'id'
+    result_list = [
+        {**({'id': emp.id}), **{field: getattr(emp, field) for field in employee_fields if hasattr(emp, field) and field != 'id'}}
+        for emp in employees
+    ]
+
+    next_cursor = employees[-1].id if len(employees) == limit else None
+
+    return {
+        "limit": limit,
+        "cursor": cursor,
+        "next_cursor": next_cursor,
+        "count": total_count,
+        "results": result_list,
+    }
 
 
 @router.post("/login")
