@@ -226,7 +226,7 @@ If you make too many requests in a short period, the API will return a rate limi
 
 ```bash
 for i in {1..20}; do
-  curl -H "Authorization: Bearer <JWT_TOKEN>" "http://localhost:8000/employees"
+  curl -H "Authorization: Bearer <JWT_TOKEN>" "http://localhost:8000/hr/1/employees/search"
 done
 ```
 
@@ -242,7 +242,7 @@ You can also use `jq` to pretty-print the output and spot the error more easily:
 
 ```bash
 for i in {1..20}; do
-  curl -H "Authorization: Bearer <JWT_TOKEN>" "http://localhost:8000/employees" | jq
+  curl -H "Authorization: Bearer <JWT_TOKEN>" "http://localhost:8000/hr/1/employees/search | jq
 done
 ```
 
