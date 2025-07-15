@@ -81,6 +81,7 @@ class TestListEmployees:
             
             # Call the function
             result = await list_employees(
+                org_id=1,
                 current_user=mock_user,
                 db=mock_db,
                 limit=20,
@@ -117,6 +118,7 @@ class TestListEmployees:
             
             # Call the function with filters
             result = await list_employees(
+                org_id=1,
                 current_user=mock_user,
                 db=mock_db,
                 limit=20,
@@ -144,6 +146,7 @@ class TestListEmployees:
             
             # Call the function with pagination
             result = await list_employees(
+                org_id=1,
                 current_user=mock_user,
                 db=mock_db,
                 limit=2,
@@ -166,6 +169,7 @@ class TestListEmployees:
             # Call the function and expect HTTPException
             with pytest.raises(HTTPException) as exc_info:
                 await list_employees(
+                    org_id=1,
                     current_user=mock_user,
                     db=mock_db,
                     limit=20,
@@ -189,6 +193,7 @@ class TestListEmployees:
             
             # Call the function with all filters
             result = await list_employees(
+                org_id=1,
                 current_user=mock_user,
                 db=mock_db,
                 limit=10,
@@ -223,6 +228,7 @@ class TestListEmployees:
             
             # Call the function
             result = await list_employees(
+                org_id=1,
                 current_user=mock_user,
                 db=mock_db,
                 limit=20,
@@ -249,6 +255,7 @@ class TestListEmployees:
             
             # Call the function
             result = await list_employees(
+                org_id=1,
                 current_user=mock_user,
                 db=mock_db,
                 limit=20,
@@ -268,3 +275,20 @@ class TestListEmployees:
                 assert "position" not in emp
                 assert "status" not in emp
                 assert "company" not in emp
+
+    @pytest.mark.asyncio
+    async def test_list_employees_org_id_mismatch(self, mock_db, mock_org_config):
+        """Test 404 is raised if org_id does not match current_user.org_id"""
+        with patch('app.api.employees.get_current_user', return_value=mock_user), \
+             patch('app.api.employees.get_org_config', return_value=mock_org_config), \
+             patch('app.api.employees.rate_limiter', return_value=None):
+            with pytest.raises(HTTPException) as exc_info:
+                await list_employees(
+                    org_id=999,  # Mismatched org_id
+                    current_user=mock_user,
+                    db=mock_db,
+                    limit=20,
+                    offset=0
+                )
+            assert exc_info.value.status_code == 404
+            assert exc_info.value.detail == "Organization not found"

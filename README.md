@@ -50,25 +50,25 @@ You can interact with the Employee Search API using standard HTTP tools. The API
 ### List Employees (all, default pagination)
 
 ```bash
-curl -u admin_techcorp:testpass "http://localhost:8000/employees" | jq
+curl -u admin_techcorp:testpass "http://localhost:8000/hr/1/employees/search" | jq
 ```
 
 ### Filter by Department
 
 ```bash
-curl -u admin_techcorp:testpass "http://localhost:8000/employees?department=Engineering" | jq
+curl -u admin_techcorp:testpass "http://localhost:8000/hr/1/employees/search?department=Engineering" | jq
 ```
 
 ### Paginate Results
 
 ```bash
-curl -u admin_techcorp:testpass "http://localhost:8000/employees?limit=2&offset=2" | jq
+curl -u admin_techcorp:testpass "http://localhost:8000/hr/1/employees/search?limit=2&offset=2" | jq
 ```
 
 ### Show Only Employee Names
 
 ```bash
-curl -u admin_techcorp:testpass "http://localhost:8000/employees" | jq '.results[].name'
+curl -u admin_techcorp:testpass "http://localhost:8000/hr/1/employees/search" | jq '.results[].name'
 ```
 
 ### Example Response
@@ -91,6 +91,20 @@ curl -u admin_techcorp:testpass "http://localhost:8000/employees" | jq '.results
     },
     ...
   ]
+}
+```
+
+### Invalid org_id example
+
+If you use an org_id that does not match your authenticated user's organization, you will receive a 404 error:
+
+```bash
+curl -u admin_techcorp:testpass "http://localhost:8000/hr/999/employees/search" | jq
+```
+Response:
+```json
+{
+  "detail": "Organization not found"
 }
 ```
 

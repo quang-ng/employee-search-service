@@ -12,8 +12,9 @@ from app.config.employee_count_cache import get_employee_count_from_cache, set_e
 router = APIRouter()
 
 
-@router.get("/employees")
+@router.get("/hr/{org_id}/employees/search")
 async def list_employees(
+    org_id: int,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
     limit: int = Query(20, ge=1, le=100),
@@ -25,7 +26,8 @@ async def list_employees(
     position: str = Query(None),
     _: None = Depends(rate_limiter),
 ):
-    org_id = current_user.org_id
+    if org_id != current_user.org_id:
+        raise HTTPException(status_code=404, detail="Organization not found")
     # Get org config from cache
     employee_fields = await get_org_config(org_id, db)
     if not employee_fields:
