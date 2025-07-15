@@ -1,6 +1,14 @@
 # Employee Search Service (fast-api)
 
+![CI](https://github.com/${{github.repository}}/actions/workflows/ci.yml/badge.svg)
+
 A simple, secure, and configurable employee directory microservice for HR organizations.
+
+---
+
+**CI/CD:** This project uses GitHub Actions to run tests and enforce a minimum code coverage of 80% on every push and pull request. The workflow is defined in `.github/workflows/ci.yml` and will fail if coverage drops below the threshold.
+
+---
 
 ## Stack
 - **Backend:** FastAPI (Python)

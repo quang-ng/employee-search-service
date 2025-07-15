@@ -7,7 +7,6 @@ from app.db.session import get_db
 from app.middleware.auth import get_current_user, create_access_token
 from app.config.org_cache import get_org_config
 from app.middleware.rate_limit import rate_limiter
-from app.config.employee_count_cache import get_employee_count_from_cache, set_employee_count_cache
 import bcrypt
 
 router = APIRouter()
@@ -56,17 +55,6 @@ async def list_employees(
         .order_by(Employee.id)
         .limit(limit)
     )
-    
-    # Try to get count from cache
-    total_count = await get_employee_count_from_cache(org_id, status, location, company, department, position)
-    if total_count is None:
-        # Count total matching employees (without pagination)
-        count_stmt = select(func.count()).select_from(Employee).where(and_(*filters))
-        total_count = (await db.execute(count_stmt)).scalar()
-        await set_employee_count_cache(org_id, status, location, company, department, position, total_count, ttl=60)
-    
-    # Add pagination
-    # stmt = stmt.offset(offset).limit(limit) # This line is removed as per the new_code
     
     result = await db.execute(stmt)
     rows = result.all()
