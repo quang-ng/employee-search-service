@@ -20,10 +20,6 @@ if not DATABASE_URL:
     raise ValueError("DATABASE_URL environment variable is not set")
 
 
-# Log DATABASE_URL if not in production
-if ENVIRONMENT != "production":
-    logger.info(f"Database URL: {DATABASE_URL}")
-
 # Create engine with better configuration
 engine = create_async_engine(
     DATABASE_URL,
@@ -66,20 +62,14 @@ async def get_db():
         try:
             logger.info(f"Attempting to create database session (attempt {attempt + 1}/{max_retries})")
             async with AsyncSessionLocal() as session:
-                # Test the connection with a simple query
-                logger.info("Testing database connection...")
-                await session.execute(text("SELECT 1"))
-                logger.info("Database connection test successful")
                 try:
                     yield session
-                    logger.info("Database session yielded successfully")
                 except Exception as e:
                     logger.error(f"Error during session usage: {str(e)}")
                     await session.rollback()
                     raise
                 finally:
-                    logger.info("Database session cleanup completed")
-                return  # Success, exit the function
+                    return  # Success, exit the function
         except HTTPException as e:
             logger.error(f"HTTPException, raise error!!, {str(e)}")
             raise e

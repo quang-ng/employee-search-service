@@ -45,30 +45,51 @@ employee-search-service/
 ```
 ## Demo: Using the Employees API with `curl` and `jq`
 
-You can interact with the Employee Search API using standard HTTP tools. The API uses HTTP Basic Auth. Example users (all with password `testpass`) are seeded by default, e.g. `admin_techcorp`, `hr_manager`, etc. (all users info are in `init.sql`)
+You can interact with the Employee Search API using standard HTTP tools. The API now uses JWT-based authentication. Example users (all with password `testpass`) are seeded by default, e.g. `admin_techcorp`, `hr_manager`, etc. (all users info are in `init.sql`).
+
+### Authenticate and Get a JWT Token
+
+First, obtain a JWT token by logging in:
+
+```bash
+curl -X POST "http://localhost:8000/login" \
+  -H "Content-Type: application/json" \
+  -d '{"username": "admin_techcorp", "password": "testpass"}'
+```
+
+The response will look like:
+
+```json
+{
+  "access_token": "<JWT_TOKEN>",
+  "token_type": "bearer"
+}
+```
+
+Save the `access_token` value for use in subsequent requests.
 
 ### List Employees (all, default pagination)
 
 ```bash
-curl -u admin_techcorp:testpass "http://localhost:8000/hr/1/employees/search" | jq
+curl -H "Authorization: Bearer <JWT_TOKEN>" "http://localhost:8000/hr/1/employees/search" | jq
 ```
 
 ### Filter by Department
 
 ```bash
-curl -u admin_techcorp:testpass "http://localhost:8000/hr/1/employees/search?department=Engineering" | jq
+curl -H "Authorization: Bearer <JWT_TOKEN>" "http://localhost:8000/hr/1/employees/search?department=Engineering" | jq
 ```
 
 ### Paginate Results
 
 ```bash
-curl -u admin_techcorp:testpass "http://localhost:8000/hr/1/employees/search?limit=2&offset=2" | jq
+curl -H "Authorization: Bearer <JWT_TOKEN>" "http://localhost:8000/hr/1/employees/search?limit=2&offset=2" | jq
 ```
 
 ### Show Only Employee Names
 
 ```bash
-curl -u admin_techcorp:testpass "http://localhost:8000/hr/1/employees/search" | jq '.results[].name'
+curl -H "Authorization: Bearer <JWT_TOKEN>" "http://localhost:8000/hr/1/employees/search" | jq '.results[].name'
 ```
 
 ### Example Response
@@ -108,15 +129,17 @@ Response:
 }
 ```
 
-### Invalid credentials example 
+### Invalid credentials example
 
 ```bash
-curl -u fakeuser:testpass "http://localhost:8000/employees" | jq 
+curl -X POST "http://localhost:8000/login" \
+  -H "Content-Type: application/json" \
+  -d '{"username": "fakeuser", "password": "testpass"}'
 ```
 Response:
 ```json
 {
-  "detail": "Invalid credentials"
+  "detail": "Invalid username or password"
 }
 ```
 
@@ -126,7 +149,7 @@ If you make too many requests in a short period, the API will return a rate limi
 
 ```bash
 for i in {1..20}; do
-  curl -u admin_techcorp:testpass "http://localhost:8000/employees"
+  curl -H "Authorization: Bearer <JWT_TOKEN>" "http://localhost:8000/employees"
 done
 ```
 

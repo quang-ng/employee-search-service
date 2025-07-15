@@ -1,13 +1,14 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Body
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy import and_, func
 from app.db.models import Employee, User
 from app.db.session import get_db
-from app.middleware.auth import get_current_user
+from app.middleware.auth import get_current_user, create_access_token
 from app.config.org_cache import get_org_config
 from app.middleware.rate_limit import rate_limiter
 from app.config.employee_count_cache import get_employee_count_from_cache, set_employee_count_cache
+import bcrypt
 
 router = APIRouter()
 
@@ -73,3 +74,16 @@ async def list_employees(
         result.append(emp_dict)
     
     return {"limit": limit, "offset": offset, "count": total_count, "results": result}
+
+
+@router.post("/login")
+async def login(
+    username: str = Body(...),
+    password: str = Body(...),
+    db: AsyncSession = Depends(get_db),
+):
+    user = (await db.execute(select(User).where(User.username == username))).scalar_one_or_none()
+    if not user or not bcrypt.checkpw(password.encode(), user.hashed_password.encode()):
+        raise HTTPException(status_code=401, detail="Invalid username or password")
+    token = create_access_token({"sub": user.username})
+    return {"access_token": token, "token_type": "bearer"}

@@ -20,7 +20,7 @@ async def http_exception_handler(request: Request, exc: HTTPException):
         return JSONResponse(
             status_code=401,
             content={"detail": exc.detail or "Authentication required"},
-            headers={"WWW-Authenticate": "Basic"},
+            headers={"WWW-Authenticate": "Bearer"},
         )
     elif exc.status_code == 429:
         return JSONResponse(

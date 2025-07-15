@@ -5,6 +5,7 @@ from fastapi import HTTPException
 from app.api.employees import list_employees
 from app.db.models import Employee, User, Organization
 from app.main import app
+import json
 
 # Test client
 client = TestClient(app)
@@ -61,6 +62,48 @@ mock_employees = [
 def mock_org_config():
     """Mock organization configuration"""
     return ["id", "name", "department", "location", "position", "status", "company"]
+
+def get_jwt_token(username, password):
+    response = client.post(
+        "/login",
+        json={"username": username, "password": password}
+    )
+    assert response.status_code == 200, f"Login failed: {response.text}"
+    return response.json()["access_token"]
+
+
+def test_login_success():
+    # This test assumes a seeded user exists in the test DB
+    response = client.post(
+        "/login",
+        json={"username": "admin_techcorp", "password": "testpass"}
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert "access_token" in data
+    assert data["token_type"] == "bearer"
+
+
+def test_login_failure():
+    response = client.post(
+        "/login",
+        json={"username": "fakeuser", "password": "wrongpass"}
+    )
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Invalid username or password"
+
+
+def test_protected_endpoint_with_jwt():
+    token = get_jwt_token("admin_techcorp", "testpass")
+    response = client.get(
+        "/hr/1/employees/search",
+        headers={"Authorization": f"Bearer {token}"}
+    )
+    # 200 or 404 depending on org_id and test DB, but should not be 401
+    assert response.status_code in (200, 404)
+    # Should not leak secrets in response
+    assert "access_token" not in response.text
+    assert "password" not in response.text
 
 class TestListEmployees:
     """Test cases for the list_employees endpoint"""
