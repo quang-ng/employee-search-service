@@ -82,8 +82,6 @@ This service uses **Redis** for caching in two main scenarios:
 
 - **Organization Configuration Cache:**
   - Organization-specific configuration data is cached in Redis to reduce database load and improve response times for repeated config lookups.
-- **Employee Count Cache:**
-  - The total number of employees per organization is cached in Redis to speed up count queries, especially for large datasets or frequent requests.
 
 Redis caching helps ensure the service remains fast and scalable, especially under high load or with large organizations.
 
@@ -244,7 +242,7 @@ You can also use `jq` to pretty-print the output and spot the error more easily:
 
 ```bash
 for i in {1..20}; do
-  curl -u admin_techcorp:testpass "http://localhost:8000/employees" | jq
+  curl -H "Authorization: Bearer <JWT_TOKEN>" "http://localhost:8000/employees" | jq
 done
 ```
 
