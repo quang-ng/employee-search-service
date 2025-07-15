@@ -1,6 +1,7 @@
 # Employee Search Service (fast-api)
 
-![CI](https://github.com/quang-ng/employee-search-service/actions/workflows/ci.yml/badge.svg)
+[![CI](https://github.com/quang-ng/employee-search-service/actions/workflows/ci.yml/badge.svg)](https://github.com/quang-ng/employee-search-service/actions/workflows/ci.yml)
+
 
 A simple, secure, and configurable employee directory microservice for HR organizations.
 
